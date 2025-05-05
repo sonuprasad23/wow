@@ -1,0 +1,81 @@
+clc;
+clear;
+close all;
+
+h = 60/72;  % time for one heartbeat (in seconds)
+
+% Time duration for full ECG simulation (e.g., 3 beats)
+total_duration = 3 * h;
+
+% Constants for ECG waveform
+Pint = 0.11;        % P wave duration
+PRint = 0.17;       % PR interval
+QRSint = 0.09;      % QRS complex duration
+QTint = 0.40;       % QT interval
+STseg = 0.10;       % ST segment duration
+
+pPeak = 0.25;
+rPeak = 1.6;
+qPeak = 0.25 * rPeak;
+sPeak = 0.35 * rPeak;
+tPeak = 0.3;
+
+hold on;
+grid on;
+
+for a = 0:h:total_duration
+
+    % P wave
+    x = 0:0.001:Pint;
+    y = pPeak * sin(x * pi / Pint);
+    plot(a + x, y, 'b');
+
+    % PR segment
+    x = Pint:0.001:PRint;
+    y = zeros(size(x));
+    plot(a + x, y, 'k');
+
+    % QRS complex
+    q1 = PRint + 0.015;
+    r1 = PRint + 0.045;
+    s1 = PRint + 0.075;
+    s2 = PRint + QRSint;
+
+    x1 = PRint:0.001:q1;
+    y1 = -26.667 * x1 + 4.53333;
+    plot(a + x1, y1, 'r');
+
+    x2 = q1:0.001:r1;
+    y2 = 66.667 * x2 - 12.733;
+    plot(a + x2, y2, 'r');
+
+    x3 = r1:0.001:s1;
+    y3 = -72 * x3 + 17.08;
+    plot(a + x3, y3, 'r');
+
+    x4 = s1:0.001:s2;
+    y4 = 37.333 * x4 - 9.706;
+    plot(a + x4, y4, 'r');
+
+    % ST segment
+    t1 = PRint + QRSint + STseg;
+    x = s2:0.001:t1;
+    y = zeros(size(x));
+    plot(a + x, y, 'k');
+
+    % T wave
+    t2 = PRint + QTint;
+    x = t1:0.001:t2;
+    y = tPeak * sin((x - t1) * pi / (t2 - t1));
+    plot(a + x, y, 'g');
+
+    % Final flat segment before next beat
+    x = t2:0.001:h;
+    y = zeros(size(x));
+    plot(a + x, y, 'k');
+end
+
+xlabel('Time (s)');
+ylabel('Voltage (mV)');
+title('Simulated ECG at 72 BPM');
+s

@@ -1,0 +1,75 @@
+h = 60 / 72;  % duration of one heartbeat in seconds (0.8333s for 72 bpm)
+ECGdur = 0:0.001:2.5;  % Total ECG duration
+
+% Define durations and amplitudes of ECG components
+Pint = 0.11;     % P wave duration
+PRint = 0.17;    % PR interval
+STseg = 0.10;    % ST segment
+QTint = 0.40;    % QT interval
+QRSint = 0.09;   % QRS complex duration
+
+% Amplitudes of waves
+pPeak = 0.25;
+rPeak = 1.6;
+qPeak = 0.25 * rPeak;
+sPeak = 0.35 * rPeak;
+tPeak = 0.3;
+
+% Start loop for 3 heartbeats
+for a = 0:h:2*h
+
+    % === P wave ===
+    x = 0:0.001:Pint;
+    y = pPeak * sin(pi * x / Pint);
+    plot(a + x, y, 'b');
+    hold on;
+
+    % === PR segment (flat) ===
+    x = Pint:0.001:PRint;
+    y = zeros(size(x));
+    plot(a + x, y, 'k');
+
+    % === QRS Complex ===
+    q1 = PRint + 0.015;
+    r1 = PRint + 0.045;
+    s1 = PRint + 0.075;
+    s2 = PRint + QRSint;
+
+    x = PRint:0.001:q1;
+    y = -26.667 * x + 4.53333;
+    plot(a + x, y, 'r');
+
+    x = q1:0.001:r1;
+    y = 66.667 * x - 12.733;
+    plot(a + x, y, 'r');
+
+    x = r1:0.001:s1;
+    y = -72 * x + 17.08;
+    plot(a + x, y, 'r');
+
+    x = s1:0.001:s2;
+    y = 37.333 * x - 9.706;
+    plot(a + x, y, 'r');
+
+    % === ST Segment ===
+    t1 = PRint + QRSint + STseg;
+    x = s2:0.001:t1;
+    y = zeros(size(x));
+    plot(a + x, y, 'k');
+
+    % === T Wave ===
+    t2 = PRint + QTint;
+    x = t1:0.001:t2;
+    y = tPeak * sin(pi * (x - t1) / (t2 - t1));
+    plot(a + x, y, 'g');
+
+    % === End to next cycle (flat line) ===
+    x = t2:0.001:h;
+    y = zeros(size(x));
+    plot(a + x, y, 'k');
+end
+
+grid on;
+xlabel('Time (s)');
+ylabel('Voltage (mV)');
+title('Synthetic ECG Signal (72 bpm)');

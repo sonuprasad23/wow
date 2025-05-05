@@ -1,0 +1,67 @@
+%% Removing High-Frequency Noise from an ECG Signal
+
+% Generate ECG signal (1 period, 500 samples)
+x = ecg(500).';
+x = x - mean(x);  % Remove DC offset
+
+% Smooth the ECG signal using Savitzky-Golay filter
+% Order 3 polynomial, frame length 11 (must be odd)
+y = sgolayfilt(x, 3, 11); 
+[M,N] = size(y);
+
+% Sampling frequency
+Fs = 1000;  
+
+% Set up time scope (only if you have DSP System Toolbox)
+TS = timescope('SampleRate',Fs,...
+               'TimeSpan',1.5,...
+               'ShowGrid',true,...
+               'NumInputPorts',2,...
+               'LayoutDimensions',[2 1],...
+               'TimeSpanSource','Property');
+           
+TS.ActiveDisplay = 1;
+TS.YLimits = [-1, 1];
+TS.Title = 'Noisy Signal';
+
+TS.ActiveDisplay = 2;
+TS.YLimits = [-1, 1];
+TS.Title = 'Filtered Signal';
+
+%% Design Lowpass Filter (pass below 200 Hz)
+Fpass = 200;
+Fstop = 400;
+Dpass = 0.05;
+Dstop = 0.0001;
+
+F = [0 Fpass Fstop Fs/2]/(Fs/2);
+A = [1 1 0 0];     % Ideal amplitude response
+D = [Dpass Dstop]; % Allowed ripples
+b = firgr('minorder', F, A, D);
+LP = dsp.FIRFilter('Numerator', b);
+
+%% Design Highpass Filter (pass above 400 Hz)
+Fstop = 200;
+Fpass = 400;
+Dstop = 0.0001;
+Dpass = 0.05;
+
+F = [0 Fstop Fpass Fs/2]/(Fs/2);
+A = [0 0 1 1];
+D = [Dstop Dpass];
+b = firgr('minorder', F, A, D);
+HP = dsp.FIRFilter('Numerator', b);
+
+%% Filter and Display ECG with Noise
+disp('Streaming... Press Ctrl+C to stop if needed.')
+tic;
+while toc < 30
+    noise = 0.1 * randn(M,N);             % White noise
+    highFreqNoise = HP(noise);           % Extract high-frequency noise
+    noisySignal = y + highFreqNoise;     % Add to ECG
+    filteredSignal = LP(noisySignal);    % Filter out noise
+    TS(noisySignal, filteredSignal);     % Plot in scope
+end
+
+% Clean up
+release(TS)

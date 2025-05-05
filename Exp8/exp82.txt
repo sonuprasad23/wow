@@ -1,0 +1,15 @@
+% Main script to generate and display the ECG signal
+
+% Specify the length of the ECG signal
+L = 500;
+
+% Call the ecg function to generate the ECG signal
+x = ecg(L);
+
+% Plot the ECG signal
+figure;
+plot(x);
+title('Generated ECG Signal');
+xlabel('Sample Index');
+ylabel('Amplitude (mV)');
+grid on;

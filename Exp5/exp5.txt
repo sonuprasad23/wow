@@ -1,0 +1,58 @@
+clc;
+close all;
+clear all;
+
+%% Problem 11.1: EMG Signal Analysis
+
+% Load EMG data (assumes 'emg_healthy.txt' is in current folder)
+problem11_1 = load('emg_healthy.txt');
+
+% Extract time and signal amplitude
+t = problem11_1(:, 1);
+y1 = problem11_1(:, 2);
+N = length(y1);  % Number of samples
+
+% Sampling info
+fs = 3000;       % Sampling frequency (Hz)
+T = 1 / fs;      % Sampling period
+t1 = (0:N-1) * T;  % Time vector based on sampling frequency
+Nyquist = fs / 2;
+
+% Plot the EMG signal
+figure;
+subplot(3, 1, 1);
+plot(t, y1, 'b');
+title('EMG Signal of Single Muscle - 40 Month Old Patient');
+xlabel('Time (sec)');
+ylabel('Amplitude (V)');
+grid on;
+
+% Compute and plot FFT
+Y = fft(y1);
+Y = abs(Y(1:floor(N/2)));  % Take half spectrum (single-sided)
+power = Y.^2;
+
+freq = linspace(0, Nyquist, length(power));  % Frequency vector
+
+subplot(3, 1, 2);
+plot(freq, power);
+xlabel('Frequency (Hz)');
+ylabel('Power Spectrum');
+title('Single-sided Power Spectrum');
+grid on;
+axis tight;
+
+% RMS of the EMG signal
+rms_y1 = sqrt(mean(y1.^2));
+msgbox(strcat('RMS of EMG signal is = ', mat2str(rms_y1)));
+
+% ARV of the EMG signal
+arv_y1 = mean(abs(y1));
+msgbox(strcat('ARV of EMG signal is = ', mat2str(arv_y1)));
+
+% Optional: plot RMS and ARV as text on third subplot
+subplot(3, 1, 3);
+axis off;
+text(0.1, 0.6, ['RMS of EMG: ', num2str(rms_y1)], 'FontSize', 12);
+text(0.1, 0.4, ['ARV of EMG: ', num2str(arv_y1)], 'FontSize', 12);
+title('Signal Metrics');

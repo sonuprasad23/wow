@@ -1,0 +1,18 @@
+fs =10; 
+t=[0,10,20,30,40,50,60,70,80,90]; 
+x=[10,120,130,120,120,100,123,456,78,89]; 
+x=x-mean(x); 
+plot(t,x),
+axis('tight'),grid('on'),title ('Time series');
+figure;
+nfft=512; 
+y=fft(x,nfft); 
+y=abs(y.^2); 
+y=y(1:1+nfft/2); 
+[v,k]=max(y); 
+f_scale=(0:nfft/2)*fs/nfft; 
+plot(f_scale,y),axis('tight'),grid('on'), 
+title('Dominant Frequency') 
+fest=f_scale(k); 
+fprintf('Dominant freq.:true%f Hz,estimated %f Hznn/n',fest,fest) 
+fprintf('Frequency step (resolution)=%f Hznn/n',f_scale(2))

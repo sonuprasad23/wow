@@ -1,0 +1,22 @@
+t = linspace(0, 1, 500);            % Time Vector (1 second, 500 points)
+EEG = rand(10, 500) * 0.005;        % Simulate 10-channel EEG (in mV)
+ofst = (1:size(EEG,1)) * 0.005 + 0.001;  % Offset Vector for vertical spacing
+
+% Add vertical offset to each EEG channel
+EEGp = EEG + ofst';                
+
+% Plot EEG
+figure(1)
+plot(t, EEGp')
+xlim([0 1])                         % Set x-axis (time) from 0 to 1 second
+ylim([0 0.055])                     % Set y-axis limits for visual clarity
+
+% Generate channel labels: 'Ch-01', 'Ch-02', ..., 'Ch-10'
+ChC = arrayfun(@(x) sprintf('Ch-%02d', x), 1:size(EEG,1), 'UniformOutput', false);
+
+yt = ofst + 0.0025;                % Y-Tick positions centered in each channel
+set(gca, 'YTick', yt, 'YTickLabel', ChC) % Label each EEG channel
+xlabel('Time (s)');
+ylabel('Voltage (mV)');
+title('Simulated EEG Signals from 10 Channels');
+grid on;

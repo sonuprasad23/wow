@@ -1,0 +1,12 @@
+clc;
+clear all;
+close all;
+emg=load('emg_healthy.txt');
+fs=1000;
+Y=fft(emg);
+N=length(Y);
+f=linspace(0,fs,N);
+Y(1)=0;
+[~,idx]=max(abs(Y));
+freq=f(idx);
+fprintf('Dominant frequency:%f Hz\n', freq)
